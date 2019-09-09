@@ -1,9 +1,9 @@
 #include "sql_connect.h"
+
 sql_connecter::sql_connecter(const std::string &_host,\
 		const std::string &_user,\
 		const std::string &_passwd,\
-		const std::string &_db)
-{
+		const std::string &_db) {
 	this->mysql_base = mysql_init(NULL);
 	this->res = NULL;
 	this->host = _host;
@@ -12,8 +12,7 @@ sql_connecter::sql_connecter(const std::string &_host,\
 	this->db   = _db;
 }
 
-bool sql_connecter::begin_connect()
-{
+bool sql_connecter::begin_connect() {
 	if( mysql_real_connect(mysql_base, host.c_str(), user.c_str(), passwd.c_str(), db.c_str(), 3306, NULL, 0) == NULL){
 		std::cerr<<"connect error"<<std::endl;
 		return false;
@@ -23,14 +22,12 @@ bool sql_connecter::begin_connect()
 	return true;
 }
 
-bool sql_connecter::close_connect()
-{
+bool sql_connecter::close_connect() {
 	mysql_close(mysql_base);
 	std::cout<<"connect close..."<<std::endl;
 }
 
-bool sql_connecter::select_sql(std::string field_name[],std::string _out_data[][3], int &_out_row)
-{
+bool sql_connecter::select_sql(std::string field_name[],std::string _out_data[][3], int &_out_row) {
 	std::string sql = "SELECT *  FROM events_all_time";
 	if(mysql_query(mysql_base, sql.c_str()) == 0){
 		std::cout<<"query success!"<<std::endl;
@@ -69,8 +66,7 @@ bool sql_connecter::select_sql(std::string field_name[],std::string _out_data[][
 	return true;
 }
 
-bool sql_connecter::insert_sql(const std::string &data)
-{
+bool sql_connecter::insert_sql(const std::string &data) {
 	std::string sql = "INSERT INTO events_all_time (action,count) values ";
 	sql += "(";
 	sql +=data;
@@ -85,8 +81,7 @@ bool sql_connecter::insert_sql(const std::string &data)
 	}
 }
 
-sql_connecter::~sql_connecter()
-{
+sql_connecter::~sql_connecter() {
 	close_connect();
 	if(res != NULL){
 		free(res);
@@ -94,31 +89,28 @@ sql_connecter::~sql_connecter()
 }
 
 
-void  sql_connecter::connSqlAndShow()
-	{
-		std::string _sql_data[1024][3];
-		std::string header[3];
-		int curr_row = -1;
-		select_sql(header,_sql_data, curr_row);
-		//conn.insert_sql(data);
-		sleep(1);
-	
-	
-		for(int i = 0; i<3; i++){
-			std::cout<<header[i]<<"\t";
+void  sql_connecter::connSqlAndShow() {
+	std::string _sql_data[1024][3];
+	std::string header[3];
+	int curr_row = -1;
+	select_sql(header,_sql_data, curr_row);
+	//conn.insert_sql(data);
+	sleep(1);
+
+	for(int i = 0; i<3; i++){
+		std::cout<<header[i]<<"\t";
+	}
+	std::cout<<std::endl;
+
+	for(int i = 0; i<curr_row; i++){
+		for(int j=0; j<3; j++){
+			std::cout<<_sql_data[i][j]<<"\t";
 		}
 		std::cout<<std::endl;
-	
-		for(int i = 0; i<curr_row; i++){
-			for(int j=0; j<3; j++){
-				std::cout<<_sql_data[i][j]<<"\t";
-			}
-			std::cout<<std::endl;
-		}
 	}
+}
 
-void sql_connecter::show_info()
-{
+void sql_connecter::show_info() {
 	std::cout<<mysql_get_client_info()<<std::endl;
 }
 
